@@ -1430,8 +1430,9 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
+			decodedBufPos--;
 
-            if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
+            /*if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
                 (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
                 Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
@@ -1450,7 +1451,7 @@ void Message_DecodeNES(PlayState* play) {
                 Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
                 Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
-            }
+            }*/
         } else if (curChar == MESSAGE_POINTS_TENS) {
             digits[0] = 0;
             digits[1] = gSaveContext.minigameScore;
@@ -1737,7 +1738,9 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
-            msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
+			decodedBufPos--;
+			
+            /*msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
             decodedBufPos++;
             Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
             decodedBufPos++;
@@ -1749,7 +1752,7 @@ void Message_DecodeNES(PlayState* play) {
             if ((digits[0] != 0) || (digits[1] != 1)) {
                 decodedBufPos++;
                 Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
-            }
+            }*/
         } else if (curChar == MESSAGE_TIME_UNTIL_NEW_DAY) {
             Message_LoadTimeNES(play, curChar, &charTexIndex, &spA4, &decodedBufPos);
         } else if ((curChar == MESSAGE_HS_POINTS_BANK_RUPEES) || (curChar == MESSAGE_HS_POINTS_UNK_1) ||
