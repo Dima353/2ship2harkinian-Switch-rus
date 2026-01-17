@@ -9,13 +9,13 @@
 f32 sNESFontWidths[160] = {
     8.0f,  8.0f,  6.0f,  9.0f,  9.0f,  14.0f, 12.0f, 3.0f,  7.0f,  7.0f,  7.0f,  9.0f,  4.0f,  6.0f,  4.0f,  9.0f,
     10.0f, 5.0f,  9.0f,  9.0f,  10.0f, 9.0f,  9.0f,  9.0f,  9.0f,  9.0f,  6.0f,  6.0f,  9.0f,  11.0f, 9.0f,  11.0f,
-    13.0f, 12.0f, 9.0f,  11.0f, 11.0f, 8.0f,  8.0f,  12.0f, 10.0f, 4.0f,  8.0f,  10.0f, 8.0f,  13.0f, 11.0f, 13.0f,
+    13.0f, 11.0f, 9.0f,  11.0f, 11.0f, 8.0f,  8.0f,  12.0f, 10.0f, 4.0f,  8.0f,  10.0f, 8.0f,  13.0f, 11.0f, 13.0f,
     9.0f,  13.0f, 10.0f, 10.0f, 9.0f,  10.0f, 11.0f, 15.0f, 11.0f, 10.0f, 10.0f, 7.0f,  10.0f, 7.0f,  10.0f, 9.0f,
     5.0f,  8.0f,  9.0f,  8.0f,  9.0f,  9.0f,  6.0f,  9.0f,  8.0f,  4.0f,  6.0f,  8.0f,  4.0f,  12.0f, 9.0f,  9.0f,
-    9.0f,  9.0f,  7.0f,  8.0f,  7.0f,  8.0f,  9.0f,  12.0f, 8.0f,  9.0f,  8.0f,  7.0f,  5.0f,  7.0f,  10.0f, 6.0f,
-    12.0f, 12.0f, 12.0f, 12.0f, 11.0f, 8.0f,  8.0f,  8.0f,  8.0f,  6.0f,  6.0f,  6.0f,  6.0f,  10.0f, 13.0f, 13.0f,
-    13.0f, 13.0f, 10.0f, 10.0f, 10.0f, 10.0f, 9.0f,  8.0f,  8.0f,  8.0f,  8.0f,  8.0f,  9.0f,  9.0f,  9.0f,  9.0f,
-    4.0f,  4.0f,  4.0f,  4.0f,  8.0f,  9.0f,  9.0f,  9.0f,  9.0f,  8.0f,  8.0f,  8.0f,  8.0f,  8.0f,  11.0f, 6.0f,
+    9.0f,  9.0f,  7.0f,  8.0f,  7.0f,  8.0f,  9.0f,  12.0f, 8.0f,  9.0f,  8.0f,  7.0f,  5.0f,  7.0f,  10.0f, 9.0f,
+    8.0f,  12.0f, 7.0f,  12.0f, 9.0f,  10.0f, 9.0f,  10.0f, 11.0f, 10.0f, 10.0f, 11.0f, 10.0f, 10.0f, 13.0f, 14.0f,
+    11.0f, 12.0f, 8.0f,  11.0f, 12.0f, 9.0f,  8.0f,  7.0f,  7.0f,  9.0f,  8.0f,  11.0f, 7.0f,  8.0f,  7.0f,  7.0f,
+    7.0f,  11.0f, 8.0f,  8.0f,  7.0f,  11.0f, 8.0f,  7.0f,  11.0f, 11.0f, 8.0f,  10.0f, 7.0f,  8.0f,  11.0f, 8.0f,
     14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f,
 };
 
@@ -77,29 +77,25 @@ void Message_LoadPluralRupeesNES(PlayState* play, s16* decodedBufPos, s32* offse
 
     msgCtx->decodedBuffer.schar[p] = ' ';
     p++;
-    Font_LoadCharNES(play, 'R', o);
+    Font_LoadCharNES(play, '\x70', o);  // р
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'R';
+    msgCtx->decodedBuffer.schar[p] = '\x70';
     p++;
-    Font_LoadCharNES(play, 'u', o);
+    Font_LoadCharNES(play, '\x79', o);  // у
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'u';
+    msgCtx->decodedBuffer.schar[p] = '\x79';
     p++;
-    Font_LoadCharNES(play, 'p', o);
+    Font_LoadCharNES(play, '\xa3', o);  // п
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'p';
+    msgCtx->decodedBuffer.schar[p] = '\xa3';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\x9d', o);  // и
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
+    msgCtx->decodedBuffer.schar[p] = '\x9d';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\x9e', o);  // й
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
-    p++;
-    Font_LoadCharNES(play, 's', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 's';
+    msgCtx->decodedBuffer.schar[p] = '\x9e';
 
     f += 16.0f * msgCtx->textCharScale * 6.0f;
     *decodedBufPos = p;
@@ -107,7 +103,7 @@ void Message_LoadPluralRupeesNES(PlayState* play, s16* decodedBufPos, s32* offse
     *arg3 = f;
 }
 
-#define RUPEES_STR_EN "Rupee(s)"
+#define RUPEES_STR_EN "\x70\x79\xa3\x9d\x9e" // рупий
 #define RUPEES_STR_DE "Rubin(e)"
 #define RUPEES_STR_FR "Rubis"
 #define RUPEES_STR_SPA "Rupia(s)"
@@ -158,35 +154,39 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
 
     msgCtx->decodedBuffer.schar[p] = ' ';
     p++;
-    Font_LoadCharNES(play, 'R', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'R';
-    p++;
-    Font_LoadCharNES(play, 'u', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'u';
-    p++;
     Font_LoadCharNES(play, 'p', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = 'p';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, 'y', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
+    msgCtx->decodedBuffer.schar[p] = 'y';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\xa3', o);  // п
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
+    msgCtx->decodedBuffer.schar[p] = '\xa3';
+    p++;
+    Font_LoadCharNES(play, '\x9d', o);  // и
+    o += FONT_CHAR_TEX_SIZE;
+    msgCtx->decodedBuffer.schar[p] = '\x9d';
 
-    if (singular != 1) {
-        p++;
-        Font_LoadCharNES(play, 's', o);
-        o += FONT_CHAR_TEX_SIZE;
-        msgCtx->decodedBuffer.schar[p] = 's';
-        f += 16.0f * msgCtx->textCharScale * 6.0f;
-    } else {
-        f += 16.0f * msgCtx->textCharScale * 5.0f;
-    }
+    char r1 = singular % 100; 
+    char r2 = singular % 10;
+    unsigned char suffix;
+    if (r1 > 10 && r1 < 20) {
+        suffix = '\x9e'; // й
+    } else if (r2 > 1 && r2 < 5) {
+        suffix = '\x9d'; // и
+    } else if (r2 == 1) {
+        if (msgCtx->currentTextId == 1130) suffix = '\xaf'; // я 1130
+        else suffix = '\xae'; // ю 1137,1114
+    } else suffix = '\x9e'; // й
+	
+    p++;
+    Font_LoadCharNES(play, suffix, o);
+    o += FONT_CHAR_TEX_SIZE;
+    msgCtx->decodedBuffer.schar[p] = suffix;
+    f += 16.0f * msgCtx->textCharScale * 6.0f;
 
     *decodedBufPos = p;
     *offset = o;
@@ -245,17 +245,17 @@ void Message_LoadTimeNES(PlayState* play, u8 curChar, s32* offset, f32* arg3, s1
     *arg3 = f;
 }
 
-#define GREAT_BAY_COAST_STR "Great Bay Coast"
-#define ZORA_CAPE_STR "Zora Cape"
-#define SNOWHEAD_STR "Snowhead"
-#define MOUNTAIN_VILLAGE_STR "Mountain Village"
-#define CLOCK_TOWN_STR "Clock Town"
-#define MILK_ROAD_STR "Milk Road"
-#define WOODFALL_STR "Woodfall"
-#define SOUTHERN_SWAMP_STR "Southern Swamp"
-#define IKANA_CANYON_STR "Ikana Canyon"
-#define STONE_TOWER_STR "Stone Tower"
-#define ENTRANCE_STR "Entrance"
+#define GREAT_BAY_COAST_STR "\x89\x6f\x96\x65\x70\x65\x9b\xac\xae\x20\x84\x61\xa0\x9d\x97\x61" // Побережью Залива
+#define ZORA_CAPE_STR "\x88\xab\x63\x79\x20\x84\x6f\x70\x61" // Мысу Зора
+#define SNOWHEAD_STR "\x43\xa2\x65\x9b\xa2\x6f\xa1\x79\x20\x89\x9d\x9f\x79" // Снежному Пику
+#define MOUNTAIN_VILLAGE_STR "\x80\x6f\x70\xa2\x6f\x9e\x20\x99\x65\x70\x65\x97\xa2\x65" // Горной деревне
+#define CLOCK_TOWN_STR "\x8d\x61\x63\x6f\x97\x6f\xa1\x79\x20\x98\x6f\x70\x6f\x99\x79" // Часовому городу
+#define MILK_ROAD_STR "\x88\xa0\x65\xa7\xa2\x6f\xa1\x79\x20\xa3\x79\xa4\x9d" // Млечному пути
+#define WOODFALL_STR "\x87\x65\x63\xa2\x6f\x9e\x20\x54\x6f\xa3\x9d" // Лесной Топи
+#define SOUTHERN_SWAMP_STR "\x94\x9b\xa2\x6f\xa1\x79\x20\x96\x6f\xa0\x6f\xa4\x79" // Южному болоту
+#define IKANA_CANYON_STR "\x4b\x61\xa2\xac\x6f\xa2\x79\x20\x85\x9f\x61\xa2\xab" // Каньону Иканы
+#define STONE_TOWER_STR "\x4b\x61\xa1\x65\xa2\xa2\x6f\x9e\x20\x96\x61\xa8\xa2\x65" // Каменной башне
+#define ENTRANCE_STR "\x42\x78\x6f\x99\x79" // Входу
 
 char sOwlWarpTextENG[OWL_WARP_MAX][16] = {
     GREAT_BAY_COAST_STR,  // OWL_WARP_GREAT_BAY_COAST
@@ -1013,12 +1013,12 @@ u8 sMaskCodeColorCmdENG[] = {
     MESSAGE_COLOR_GREEN,
 };
 
-#define RED_STR "RED"
-#define BLUE_STR "BLUE"
-#define YELLOW_STR "YELLOW"
-#define GREEN_STR "GREEN"
+#define RED_STR "\x4b\x50\x41\x43\x48\x91\x86" // КРАСНЫЙ
+#define BLUE_STR "\x43\x85\x48\x85\x86" // СИНИЙ
+#define YELLOW_STR "\x83\x45\x87\x54\x91\x86" // ЖЕЛТЫЙ
+#define GREEN_STR "\x84\x45\x87\x82\x48\x91\x86" // ЗЕЛЁНЫЙ
 
-char sMaskCodeTextENG[][6] = {
+char sMaskCodeTextENG[][7] = {
     RED_STR,
     BLUE_STR,
     YELLOW_STR,
@@ -1381,32 +1381,35 @@ void Message_DecodeNES(PlayState* play) {
                 }
             }
 
-            if ((gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
-                 1) ||
-                (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
-                 21)) {
-                Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
+            decodedBufPos--;
+            /*if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
+                (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
+                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((gSaveContext.save.saveInfo.inventory
-                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 2) ||
-                       (gSaveContext.save.saveInfo.inventory
-                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 22)) {
-                Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\xab', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((gSaveContext.save.saveInfo.inventory
-                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 3) ||
-                       (gSaveContext.save.saveInfo.inventory
-                            .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 23)) {
-                Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 2) ||
+                       (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
+                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
+            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 3) ||
+                       (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
+                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                Message_LoadCharNES(play, '\x9d', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
             } else {
-                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x2d', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
-            }
+                Message_LoadCharNES(play, '\xab', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                Message_LoadCharNES(play, '\x9e', &charTexIndex, &spA4, decodedBufPos);
+            }*/
         } else if (curChar == MESSAGE_TOKENS) {
             digits[0] = digits[1] = 0;
             digits[2] = Inventory_GetSkullTokenCount(play->sceneId);
@@ -1431,25 +1434,33 @@ void Message_DecodeNES(PlayState* play) {
                 }
             }
 
-            if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
-                (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
-                Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
+            decodedBufPos--;
+            /*msgCtx->decodedBuffer.schar[decodedBufPos] = ' ';
+							
+																				
+            decodedBufPos++;
+            Message_LoadCharNES(play, '\xa7', &charTexIndex, &spA4, decodedBufPos); // ч
+            decodedBufPos++;
+            Message_LoadCharNES(play, '\x61', &charTexIndex, &spA4, decodedBufPos); // а
+            decodedBufPos++;
+            Message_LoadCharNES(play, '\x63', &charTexIndex, &spA4, decodedBufPos); // с
+            
+            char r2 = digits[1];
+            char r1 = digits[0]*10+r2;
+            if (r1 > 10 && r1 < 20) {
                 decodedBufPos++;
-                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 2) ||
-                       (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
-                Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos); // о
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
-            } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 3) ||
-                       (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
-                Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x97', &charTexIndex, &spA4, decodedBufPos); // в
+            } else if (r2 > 1 && r2 < 5) {
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
-            } else {
-                Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x61', &charTexIndex, &spA4, decodedBufPos); // а
+            } else if (r2 != 1) {
                 decodedBufPos++;
-                Message_LoadCharNES(play, 'h', &charTexIndex, &spA4, decodedBufPos);
+                Message_LoadCharNES(play, '\x6f', &charTexIndex, &spA4, decodedBufPos); // о
+                decodedBufPos++;
+                Message_LoadCharNES(play, '\x97', &charTexIndex, &spA4, decodedBufPos); // в
+            }*/
             }
         } else if (curChar == MESSAGE_POINTS_TENS) {
             digits[0] = 0;
