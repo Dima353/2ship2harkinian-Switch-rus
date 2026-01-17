@@ -25,13 +25,13 @@ void Message_FindCreditsMessage(PlayState* play, u16 textId) {
 f32 sCreditsFontWidths[144] = {
     8.0f,  8.0f,  6.0f,  9.0f,  9.0f,  14.0f, 12.0f, 3.0f,  7.0f,  7.0f,  7.0f,  9.0f,  4.0f,  6.0f,  4.0f,  9.0f,
     10.0f, 5.0f,  9.0f,  9.0f,  10.0f, 9.0f,  9.0f,  9.0f,  9.0f,  9.0f,  6.0f,  6.0f,  9.0f,  11.0f, 9.0f,  11.0f,
-    13.0f, 11.0f, 9.0f,  11.0f, 11.0f, 8.0f,  8.0f,  12.0f, 10.0f, 4.0f,  8.0f,  10.0f, 8.0f,  13.0f, 11.0f, 13.0f,
+    13.0f, 12.0f, 9.0f,  11.0f, 11.0f, 8.0f,  8.0f,  12.0f, 10.0f, 4.0f,  8.0f,  10.0f, 8.0f,  13.0f, 11.0f, 13.0f,
     9.0f,  13.0f, 10.0f, 10.0f, 9.0f,  10.0f, 11.0f, 15.0f, 11.0f, 10.0f, 10.0f, 7.0f,  10.0f, 7.0f,  10.0f, 9.0f,
     5.0f,  8.0f,  9.0f,  8.0f,  9.0f,  9.0f,  6.0f,  9.0f,  8.0f,  4.0f,  6.0f,  8.0f,  4.0f,  12.0f, 9.0f,  9.0f,
-    9.0f,  9.0f,  7.0f,  8.0f,  7.0f,  8.0f,  9.0f,  12.0f, 8.0f,  9.0f,  8.0f,  7.0f,  5.0f,  7.0f,  10.0f, 9.0f,
-    8.0f,  12.0f, 7.0f,  12.0f, 9.0f,  10.0f, 9.0f,  10.0f, 11.0f, 10.0f, 10.0f, 11.0f, 10.0f, 10.0f, 13.0f, 14.0f,
-    11.0f, 12.0f, 8.0f,  11.0f, 12.0f, 9.0f,  8.0f,  7.0f,  7.0f,  9.0f,  8.0f,  11.0f, 7.0f,  8.0f,  7.0f,  7.0f,
-    7.0f,  11.0f, 8.0f,  8.0f,  7.0f,  11.0f, 8.0f,  7.0f,  11.0f, 11.0f, 8.0f,  10.0f, 7.0f,  8.0f,  11.0f, 8.0f,
+    9.0f,  9.0f,  7.0f,  8.0f,  7.0f,  8.0f,  9.0f,  12.0f, 8.0f,  9.0f,  8.0f,  7.0f,  5.0f,  7.0f,  10.0f, 10.0f,
+    12.0f, 12.0f, 12.0f, 12.0f, 11.0f, 8.0f,  8.0f,  8.0f,  6.0f,  6.0f,  13.0f, 13.0f, 10.0f, 10.0f, 10.0f, 9.0f,
+    8.0f,  8.0f,  8.0f,  8.0f,  8.0f,  9.0f,  9.0f,  9.0f,  9.0f,  6.0f,  9.0f,  9.0f,  9.0f,  9.0f,  9.0f,  14.0f,
+    14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f, 14.0f,
 };
 
 void Message_DrawTextCredits(PlayState* play, Gfx** gfxP) {
@@ -312,7 +312,7 @@ void Message_DrawTextCredits(PlayState* play, Gfx** gfxP) {
                 Message_DrawTextChar(play, &font->charBuf[font->unk_11D88][charTexIndex], &gfx);
                 charTexIndex += FONT_CHAR_TEX_SIZE;
 
-                 msgCtx->textPosX += (s32)(sCreditsFontWidths[(u8)character - ' '] * msgCtx->textCharScale);
+                msgCtx->textPosX += (s32)(sCreditsFontWidths[character - ' '] * msgCtx->textCharScale);
                 break;
         }
     }
