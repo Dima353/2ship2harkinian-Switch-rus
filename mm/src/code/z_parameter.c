@@ -1354,14 +1354,14 @@ s16 sActionVtxHeights[ACTION_QUAD_BASE_COUNT] = {
 // Used for PERFECT_LETTERS_TYPE_1 and only part of PERFECT_LETTERS_TYPE_3
 // Both PERFECT_LETTERS_TYPE_2 and PERFECT_LETTERS_TYPE_2 have (0, 0) as the center for all letters
 s16 sPerfectLettersCenterX[PERFECT_LETTERS_NUM_LETTERS] = {
-    -61,  // P
-    -45,  // E
-    29,   // R
-    104,  // F
-    -117, // E
-    -42,  // C
-    32,   // T
-    55,   // !
+    -50,  // P
+    -37,  // E
+    34,   // R
+    103,  // F
+    -123, // E
+    -52,  // C
+    17,   // T
+    37,   // !
 };
 
 s16 sPerfectLettersCenterY[PERFECT_LETTERS_NUM_LETTERS] = {
@@ -7594,14 +7594,14 @@ void Interface_UpdatePerfectLettersType1(PlayState* play) {
 
 // Targets to offset each letter to properly spell "PERFECT!"
 s16 sPerfectLettersType2SpellingOffsetsX[PERFECT_LETTERS_NUM_LETTERS] = {
-    78,  // P
-    54,  // E
+    76,  // P
+    51,  // E
     29,  // R
-    5,   // F
-    -18, // E
-    -42, // C
-    -67, // T
-    -85, // !
+    -1,   // F
+    -25, // E
+    -49, // C
+    -75, // T
+    -91, // !
 };
 
 // Targets to offset each letter to sweep horizontally offscreen
@@ -7767,14 +7767,14 @@ void Interface_UpdatePerfectLettersType2(PlayState* play) {
 
 // Targets to offset each letter to properly spell "PERFECT!"
 s16 sPerfectLettersType3SpellingOffsetsX[PERFECT_LETTERS_NUM_LETTERS] = {
-    78,  // P
-    54,  // E
-    29,  // R
-    5,   // F
-    -18, // E
-    -42, // C
-    -67, // T
-    -85, // !
+    76,  // P
+    51,  // E
+    26,  // R
+    -1,   // F
+    -25, // E
+    -49, // C
+    -75, // T
+    -91, // !
 };
 
 // Targets to sweep each letter's angle along an elliptical spiral offscreen
@@ -7935,7 +7935,7 @@ void Interface_UpdatePerfectLettersType3(PlayState* play) {
 
 TexturePtr sPerfectLettersTextures[PERFECT_LETTERS_NUM_LETTERS] = {
     gPerfectLetterPTex, gPerfectLetterETex, gPerfectLetterRTex, gPerfectLetterFTex,
-    gPerfectLetterETex, gPerfectLetterCTex, gPerfectLetterTTex, gPerfectLetterExclamationTex,
+    gPerfectLetterCTex, gPerfectLetterTTex, gPerfectLetterPTex, gPerfectLetterExclamationTex,
 };
 
 void Interface_DrawPerfectLetters(PlayState* play) {
