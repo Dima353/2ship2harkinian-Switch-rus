@@ -245,17 +245,17 @@ void Message_LoadTimeNES(PlayState* play, u8 curChar, s32* offset, f32* arg3, s1
     *arg3 = f;
 }
 
-#define GREAT_BAY_COAST_STR "Great Bay Coast"
-#define ZORA_CAPE_STR "Zora Cape"
-#define SNOWHEAD_STR "Snowhead"
-#define MOUNTAIN_VILLAGE_STR "Mountain Village"
-#define CLOCK_TOWN_STR "Clock Town"
-#define MILK_ROAD_STR "Milk Road"
-#define WOODFALL_STR "Woodfall"
-#define SOUTHERN_SWAMP_STR "Southern Swamp"
-#define IKANA_CANYON_STR "Ikana Canyon"
-#define STONE_TOWER_STR "Stone Tower"
-#define ENTRANCE_STR "Entrance"
+#define GREAT_BAY_COAST_STR "\x89\x6f\x96\x65\x70\x65\x9b\xac\xae\x20\x84\x61\xa0\x9d\x97\x61" // Побережью Залива
+#define ZORA_CAPE_STR "\x88\xab\x63\x79\x20\x84\x6f\x70\x61" // Мысу Зора
+#define SNOWHEAD_STR "\x43\xa2\x65\x9b\xa2\x6f\xa1\x79\x20\x89\x9d\x9f\x79" // Снежному Пику
+#define MOUNTAIN_VILLAGE_STR "\x80\x6f\x70\xa2\x6f\x9e\x20\x99\x65\x70\x65\x97\xa2\x65" // Горной деревне
+#define CLOCK_TOWN_STR "\x8d\x61\x63\x6f\x97\x6f\xa1\x79\x20\x98\x6f\x70\x6f\x99\x79" // Часовому городу
+#define MILK_ROAD_STR "\x88\xa0\x65\xa7\xa2\x6f\xa1\x79\x20\xa3\x79\xa4\x9d" // Млечному пути
+#define WOODFALL_STR "\x87\x65\x63\xa2\x6f\x9e\x20\x54\x6f\xa3\x9d" // Лесной Топи
+#define SOUTHERN_SWAMP_STR "\x94\x9b\xa2\x6f\xa1\x79\x20\x96\x6f\xa0\x6f\xa4\x79" // Южному болоту
+#define IKANA_CANYON_STR "\x4b\x61\xa2\xac\x6f\xa2\x79\x20\x85\x9f\x61\xa2\xab" // Каньону Иканы
+#define STONE_TOWER_STR "\x4b\x61\xa1\x65\xa2\xa2\x6f\x9e\x20\x96\x61\xa8\xa2\x65" // Каменной башне
+#define ENTRANCE_STR "\x42\x78\x6f\x99\x79" // Входу
 
 char sOwlWarpTextENG[OWL_WARP_MAX][16] = {
     GREAT_BAY_COAST_STR,  // OWL_WARP_GREAT_BAY_COAST
@@ -1013,12 +1013,12 @@ u8 sMaskCodeColorCmdENG[] = {
     MESSAGE_COLOR_GREEN,
 };
 
-#define RED_STR "RED"
-#define BLUE_STR "BLUE"
-#define YELLOW_STR "YELLOW"
-#define GREEN_STR "GREEN"
+#define RED_STR "\x4b\x50\x41\x43\x48\x91\x86" // КРАСНЫЙ
+#define BLUE_STR "\x43\x85\x48\x85\x86" // СИНИЙ
+#define YELLOW_STR "\x83\x45\x87\x54\x91\x86" // ЖЕЛТЫЙ
+#define GREEN_STR "\x84\x45\x87\x82\x48\x91\x86" // ЗЕЛЁНЫЙ
 
-char sMaskCodeTextENG[][6] = {
+char sMaskCodeTextENG[][7] = {
     RED_STR,
     BLUE_STR,
     YELLOW_STR,

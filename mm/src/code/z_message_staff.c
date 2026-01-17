@@ -312,7 +312,7 @@ void Message_DrawTextCredits(PlayState* play, Gfx** gfxP) {
                 Message_DrawTextChar(play, &font->charBuf[font->unk_11D88][charTexIndex], &gfx);
                 charTexIndex += FONT_CHAR_TEX_SIZE;
 
-                msgCtx->textPosX += (s32)(sCreditsFontWidths[character - ' '] * msgCtx->textCharScale);
+                msgCtx->textPosX += (s32)(sCreditsFontWidths[(u8)character - ' '] * msgCtx->textCharScale);
                 break;
         }
     }
