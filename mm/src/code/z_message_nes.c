@@ -77,29 +77,25 @@ void Message_LoadPluralRupeesNES(PlayState* play, s16* decodedBufPos, s32* offse
 
     msgCtx->decodedBuffer.schar[p] = ' ';
     p++;
-    Font_LoadCharNES(play, 'R', o);
+    Font_LoadCharNES(play, '\x70', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'R';
+    msgCtx->decodedBuffer.schar[p] = '\x70';
     p++;
-    Font_LoadCharNES(play, 'u', o);
+    Font_LoadCharNES(play, '\x79', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'u';
+    msgCtx->decodedBuffer.schar[p] = '\x79';
     p++;
-    Font_LoadCharNES(play, 'p', o);
+    Font_LoadCharNES(play, '\xa3', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'p';
+    msgCtx->decodedBuffer.schar[p] = '\xa3';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\x9d', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
+    msgCtx->decodedBuffer.schar[p] = '\x9d';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\x9e', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
-    p++;
-    Font_LoadCharNES(play, 's', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 's';
+    msgCtx->decodedBuffer.schar[p] = '\x9e';
 
     f += 16.0f * msgCtx->textCharScale * 6.0f;
     *decodedBufPos = p;
@@ -107,7 +103,7 @@ void Message_LoadPluralRupeesNES(PlayState* play, s16* decodedBufPos, s32* offse
     *arg3 = f;
 }
 
-#define RUPEES_STR_EN "Rupee(s)"
+#define RUPEES_STR_EN "\x70\x79\xa3\x9d\x9e" // рупий
 #define RUPEES_STR_DE "Rubin(e)"
 #define RUPEES_STR_FR "Rubis"
 #define RUPEES_STR_SPA "Rupia(s)"
@@ -158,35 +154,39 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
 
     msgCtx->decodedBuffer.schar[p] = ' ';
     p++;
-    Font_LoadCharNES(play, 'R', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'R';
-    p++;
-    Font_LoadCharNES(play, 'u', o);
-    o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'u';
-    p++;
     Font_LoadCharNES(play, 'p', o);
     o += FONT_CHAR_TEX_SIZE;
     msgCtx->decodedBuffer.schar[p] = 'p';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, 'y', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
+    msgCtx->decodedBuffer.schar[p] = 'y';
     p++;
-    Font_LoadCharNES(play, 'e', o);
+    Font_LoadCharNES(play, '\xa3', o);
     o += FONT_CHAR_TEX_SIZE;
-    msgCtx->decodedBuffer.schar[p] = 'e';
-
-    if (singular != 1) {
-        p++;
-        Font_LoadCharNES(play, 's', o);
-        o += FONT_CHAR_TEX_SIZE;
-        msgCtx->decodedBuffer.schar[p] = 's';
-        f += 16.0f * msgCtx->textCharScale * 6.0f;
-    } else {
-        f += 16.0f * msgCtx->textCharScale * 5.0f;
-    }
+    msgCtx->decodedBuffer.schar[p] = '\xa3';
+    p++;
+    Font_LoadCharNES(play, '\x9d', o);
+    o += FONT_CHAR_TEX_SIZE;
+    msgCtx->decodedBuffer.schar[p] = '\x9d';
+	
+	char r1 = singular % 100; 
+    char r2 = singular % 10;
+    unsigned char suffix;
+    if (r1 > 10 && r1 < 20) {
+        suffix = '\x9e'; // й
+    } else if (r2 > 1 && r2 < 5) {
+        suffix = '\x9d'; // и
+    } else if (r2 == 1) {
+        if (msgCtx->currentTextId == 1130) suffix = '\xaf'; // я 1130
+        else suffix = '\xae'; // ю 1137,1114
+    } else suffix = '\x9e'; // й
+	
+    p++;
+    Font_LoadCharNES(play, suffix, o);
+    o += FONT_CHAR_TEX_SIZE;
+    msgCtx->decodedBuffer.schar[p] = suffix;
+    f += 16.0f * msgCtx->textCharScale * 6.0f;
 
     *decodedBufPos = p;
     *offset = o;
