@@ -299,7 +299,9 @@ OTRGlobals::OTRGlobals() {
     for (uint32_t version : versions) {
         if (!validHashes.contains(version)) {
 #if defined(__SWITCH__)
-            SPDLOG_ERROR("Invalid O2R File!");
+            Ship::Switch::ShowErrorApplet("Invalid O2R file detected\n\n"
+                                          "The ROM that was used to generate the O2R file is not supported by this version.\n"
+                                          "Please refer to https://2ship.equipment");
 #elif defined(__WIIU__)
             Ship::WiiU::ThrowInvalidOTR();
 #else
