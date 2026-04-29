@@ -122,6 +122,7 @@ jobs:
         brew uninstall --ignore-dependencies libpng
         sudo port install $(cat .github/workflows/macports-deps.txt)
         brew install ninja
+        pip install --break-system-packages cryptography # needed for libultraship
     - name: Download 2ship.o2r
       uses: actions/download-artifact@v4
       with:
@@ -162,6 +163,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
+        pip install --break-system-packages cryptography # needed for libultraship
     - name: Configure ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
@@ -263,9 +265,10 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build
+        sudo apt-get install -y ninja-build $(cat .github/workflows/apt-deps.txt)  
         sudo apt-get remove -y cmake
         sudo dkp-pacman -R --noconfirm switch-tinyxml2
+        pip install --break-system-packages cryptography # needed for libultraship
         wget https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.sh -O /tmp/cmake.sh
         sudo sh /tmp/cmake.sh --prefix=/usr/local/ --exclude-subdir
 
