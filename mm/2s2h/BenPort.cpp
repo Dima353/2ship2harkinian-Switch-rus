@@ -535,8 +535,8 @@ void Check2ShipArchiveVersion(std::string archivePath) {
     std::string msg;
 
 #if defined(__SWITCH__)
-    msg = "\x1b[4;2HPlease re-extract it from the download."
-          "\x1b[6;2HPress the Home button to exit...";
+    msg = "Please re-extract it from the download.\n"
+          "Press the Home button to exit...";
 #elif defined(__WIIU__)
     msg = "Please extract the 2ship.o2r from the 2 Ship 2 Harkinian download\nto your folder.\n\n"
           "Press and hold the power button to shutdown...";
@@ -549,7 +549,7 @@ void Check2ShipArchiveVersion(std::string archivePath) {
         Extractor::ShowErrorBox("2ship.o2r file is missing", msg.c_str());
         exit(1);
 #elif defined(__SWITCH__)
-        Ship::Switch::PrintErrorMessageToScreen(("\x1b[2;2HYou are missing the 2ship.o2r file." + msg).c_str());
+        Ship::Switch::ShowErrorApplet(("You are missing the 2ship.o2r file.\n\n" + msg).c_str());
 #elif defined(__WIIU__)
         OSFatal(("You are missing the 2ship.o2r file\n\n" + msg).c_str());
 #endif
@@ -563,7 +563,7 @@ void Check2ShipArchiveVersion(std::string archivePath) {
         Extractor::ShowErrorBox("2ship.o2r file version does not match", msg.c_str());
         exit(1);
 #elif defined(__SWITCH__)
-        Ship::Switch::PrintErrorMessageToScreen(("\x1b[2;2HYou have an old 2ship.o2r file." + msg).c_str());
+        Ship::Switch::ShowErrorApplet(("You have an old 2ship.o2r file.\n\n" + msg).c_str());
 #elif defined(__WIIU__)
         OSFatal(("You have an old 2ship.o2r file\n\n" + msg).c_str());
 #endif
@@ -637,9 +637,9 @@ void DetectArchiveVersion(std::string fileName, bool isO2rType) {
         }
 
 #elif defined(__SWITCH__)
-        Ship::Switch::PrintErrorMessageToScreen("\x1b[2;2HYou've launched the 2Ship with an old game O2R file."
-                                                "\x1b[4;2HPlease regenerate a new game O2R and relaunch."
-                                                "\x1b[6;2HPress the Home button to exit...");
+        Ship::Switch::ShowErrorApplet("You've launched the 2Ship with an old game O2R file.\n\n"
+                                     "Please regenerate a new game O2R and relaunch.\n"
+                                     "Press the Home button to exit...");
 #elif defined(__WIIU__)
         OSFatal("You've launched the 2Ship with an old a game O2R file.\n\n"
                 "Please generate a game O2R and relaunch.\n\n"
