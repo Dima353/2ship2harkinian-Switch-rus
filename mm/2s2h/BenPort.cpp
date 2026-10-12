@@ -295,7 +295,9 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
             args.push_back(argv[i]);
         }
     }
+#if not defined(__SWITCH__) && not defined(__WIIU__)
     Extractor extract;
+#endif
     PromptSteps promptStep = PS_FILE_CHECK;
     bool romsFromSearch = false;
     std::atomic<size_t> extractCount = 0, totalExtract = 0;
@@ -500,6 +502,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                         continue;
                     }
                     case PS_LOCAL: {
+#if not defined(__SWITCH__) && not defined(__WIIU__)
                         extract = Extractor();
                         extract.SetSearchPath(installPath);
                         extract.GetRoms(args);
@@ -531,6 +534,9 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                             extractCount = 0;
                             totalExtract = 0;
                         });
+#else
+                        extractStep = ES_VERIFY;
+#endif
                         continue;
                     }
                     default:
@@ -956,10 +962,6 @@ ArchiveVersion DetectArchiveVersion(std::string fileName, bool isO2rType) {
     }
 
     return ReadPortVersionFromArchive(archivePath, isO2rType);
-}
-
-extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
-    Extractor::ShowErrorBox(title, body);
 }
 
 bool VerifyArchiveVersion(ArchiveVersion version) {

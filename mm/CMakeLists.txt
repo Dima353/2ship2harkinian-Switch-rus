@@ -586,6 +586,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	link_libraries(Vorbis::vorbisfile)
 	find_package(Ogg REQUIRED)
 	link_libraries(Ogg::ogg)
+	find_package(PNG REQUIRED)
 
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
@@ -596,6 +597,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 			OpusFile::opusfile
 			Vorbis::vorbisfile
 			Ogg::ogg
+			PNG::PNG
     )
 	target_include_directories(${PROJECT_NAME} PRIVATE
 #			${DEVKITPRO}/portlibs/switch/include/
