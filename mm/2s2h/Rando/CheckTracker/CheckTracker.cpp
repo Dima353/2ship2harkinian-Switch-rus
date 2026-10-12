@@ -22,6 +22,8 @@ extern "C" {
 s16 Play_GetOriginalSceneId(s16 sceneId);
 }
 
+#include <fast/Fast3dGui.h>
+
 namespace BenGui {
 extern std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
 }
@@ -111,12 +113,14 @@ ImVec4 trackerBG = ImVec4{ 0, 0, 0, 0.5f };
 std::map<SceneId, std::set<RandoCheckId>> sceneChecks;
 std::vector<SceneId> sortedSceneIds;
 std::unordered_map<RandoCheckId, std::string> accessLogicFuncs;
+std::unordered_map<RandoRegionId, SceneId> regionParentSceneMap;
 std::set<RandoCheckType> checkTypeFiltersAvailable;
 std::set<RandoCheckType> checkTypeFilter;
 
 std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_UNKNOWN*/ gItemIconBombersNotebookTex,
     /*RCTYPE_BARREL*/ gBarrelTrackerIcon,
+    /*RCTYPE_BUTTERFLY*/ gItemIconDekuStickTex,
     /*RCTYPE_CHEST*/ gChestTrackerIcon,
     /*RCTYPE_COW*/ gItemIconRomaniMaskTex,
     /*RCTYPE_CRATE*/ gCrateTrackerIcon,
@@ -125,6 +129,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_FROG*/ gItemIconDonGeroMaskTex,
     /*RCTYPE_GRASS*/ gameplay_keep_Tex_053140,
     /*RCTYPE_HEART*/ gQuestIconPieceOfHeartTex,
+    /*RCTYPE_BEEHIVE*/ gArcheryScoreIconTex,
     /*RCTYPE_MINIGAME*/ gArcheryScoreIconTex,
     /*RCTYPE_NPC*/ gItemIconBombersNotebookTex,
     /*RCTYPE_OWL*/ gWorldMapOwlFaceTex,
@@ -137,6 +142,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
     /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,
     /*RCTYPE_TREE*/ gItemIconDekuStickTex,
+    /*RCTYPE_WONDER_ITEM*/ gPauseUnusedCursorTex,
 };
 
 static constexpr ImVec4 tintColor = {};
@@ -162,7 +168,8 @@ std::string GetTotalCheckCount() {
 
 void DrawCheckTypeIcon(RandoCheckId randoCheckId) {
     RandoCheckType checkType = Rando::StaticData::Checks[randoCheckId].randoCheckType;
-    ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(checkTypeIconList[checkType]),
+    ImGui::Image(std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                     ->GetTextureByName(checkTypeIconList[checkType]),
                  checkType == RCTYPE_SONG  ? ImVec2(12.0f * trackerScale, 18.0f * trackerScale)
                  : checkType == RCTYPE_OWL ? ImVec2(18.0f * trackerScale, 9.0f * trackerScale)
                                            : ImVec2(18.0f * trackerScale, 18.0f * trackerScale),
@@ -172,36 +179,50 @@ void DrawCheckTypeIcon(RandoCheckId randoCheckId) {
                  checkType == RCTYPE_FREESTANDING ? ImVec4(0.78f, 1, 0.39f, 1) : ImVec4(1, 1, 1, 1), tintColor);
 }
 
+static std::set<SceneId> scenesToCheckParent = {
+    SCENE_KAKUSIANA, SCENE_TAKARAYA,    SCENE_BOWLING,      SCENE_SONCHONOIE, SCENE_SYATEKI_MIZU, SCENE_YADOYA,
+    SCENE_MILK_BAR,  SCENE_AYASHIISHOP, SCENE_YOUSEI_IZUMI, SCENE_DOUJOU,     SCENE_8ITEMSHOP,    SCENE_BOMYA,
+    SCENE_POSTHOUSE, SCENE_TAKARAKUJI,  SCENE_SYATEKI_MORI, SCENE_MAP_SHOP,   SCENE_WITCH_SHOP,   SCENE_F01C,
+    SCENE_F01_B,     SCENE_OMOYA,       SCENE_GORONSHOP,    SCENE_KAJIYA,     SCENE_FISHERMAN,    SCENE_LABO,
+    SCENE_BANDROOM,  SCENE_TOUGITES,    SCENE_MUSICHOUSE,
+};
+
+static std::unordered_map<SceneId, const char*> sCheckTrackerSceneNameOverrides = {
+    { SCENE_20SICHITAI, "Southern Swamp" },   { SCENE_10YUKIYAMANOMURA, "Mountain Village" },
+    { SCENE_11GORONNOSATO, "Goron Village" }, { SCENE_17SETUGEN, "Path to Goron Village" },
+    { SCENE_KAKUSIANA, "Lone Peak Shrine" },
+};
+
+const char* GetCheckTrackerSceneName(SceneId sceneId) {
+    auto it = sCheckTrackerSceneNameOverrides.find(sceneId);
+    if (it != sCheckTrackerSceneNameOverrides.end()) {
+        return it->second;
+    }
+    return Ship_GetSceneName(sceneId);
+}
+
+SceneId GetScrollTargetScene(s32 rawSceneId) {
+    SceneId sceneId = (SceneId)Play_GetOriginalSceneId(rawSceneId);
+    if (scenesToCheckParent.contains(sceneId)) {
+        RandoRegionId regionId = Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance);
+        if (regionParentSceneMap.contains(regionId)) {
+            return regionParentSceneMap[regionId];
+        }
+    }
+    return sceneId;
+}
+
 void initializeSceneChecks() {
     sceneChecks.clear();
+    regionParentSceneMap.clear();
     checkTypeFiltersAvailable.clear();
     checkTypeFiltersAvailable.insert(RCTYPE_UNKNOWN); // Always include the unknown type
 
-    for (auto& [_, randoStaticCheck] : Rando::StaticData::Checks) {
-        RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
-        if (!randoSaveCheck.shuffled) {
-            continue;
-        }
-
-        checkTypeFiltersAvailable.insert(randoStaticCheck.randoCheckType);
-
-        // Skip Grotto Checks, they will be handled below
-        if (randoStaticCheck.sceneId == SCENE_KAKUSIANA) {
-            continue;
-        }
-
-        // Skip Enemy Drops, they will be handled below
-        if (randoStaticCheck.randoCheckType == RCTYPE_ENEMY_DROP) {
-            continue;
-        }
-
-        SceneId sceneId = (SceneId)Play_GetOriginalSceneId(randoStaticCheck.sceneId);
-        sceneChecks[sceneId].insert(randoStaticCheck.randoCheckId);
-    }
-
     for (auto& [regionId, staticRegion] : Rando::Logic::Regions) {
-        // Handle grottos separately, their checks are assigned to the connected region
-        if (staticRegion.sceneId == SCENE_KAKUSIANA) {
+        SceneId sceneId = (SceneId)Play_GetOriginalSceneId(staticRegion.sceneId);
+
+        // For some scenes we want to show them in their parent instead
+        if (scenesToCheckParent.contains(sceneId)) {
             RandoRegionId connectedRegionId = RR_MAX;
             if (regionId == RR_LONE_PEAK_SHRINE) {
                 connectedRegionId = RR_LONE_PEAK_SHRINE;
@@ -216,26 +237,17 @@ void initializeSceneChecks() {
                     continue;
                 }
             }
-            SceneId connectedSceneId = Rando::Logic::Regions[connectedRegionId].sceneId;
-            for (auto& [randoCheckId, _] : staticRegion.checks) {
-                RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-                if (!randoSaveCheck.shuffled) {
-                    continue;
-                }
-                sceneChecks[connectedSceneId].insert(randoCheckId);
+            sceneId = Rando::Logic::Regions[connectedRegionId].sceneId;
+            regionParentSceneMap[regionId] = sceneId;
+        }
+        for (auto& [randoCheckId, _] : staticRegion.checks) {
+            RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+            auto& randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
+            if (!randoSaveCheck.shuffled) {
+                continue;
             }
-        } else {
-            // Handle enemy drop seperately, they can be in multiple regions
-            for (auto& [randoCheckId, _] : staticRegion.checks) {
-                auto& randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
-                RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-                if (!randoSaveCheck.shuffled || randoStaticCheck.randoCheckType != RCTYPE_ENEMY_DROP) {
-                    continue;
-                }
-
-                SceneId sceneId = (SceneId)Play_GetOriginalSceneId(staticRegion.sceneId);
-                sceneChecks[sceneId].insert(randoCheckId);
-            }
+            checkTypeFiltersAvailable.insert(randoStaticCheck.randoCheckType);
+            sceneChecks[sceneId].insert(randoCheckId);
         }
     }
 
@@ -282,6 +294,8 @@ void RefreshChecksInLogic() {
     std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates =
         Rando::Logic::InitializeRegionTimeStates(RR_MAX);
 
+    std::set<std::pair<RandoEvent, std::function<bool()>>*> appliedEvents;
+
     // Iteratively explore until no new regions/events discovered
     bool changed = true;
     while (changed) {
@@ -300,8 +314,9 @@ void RefreshChecksInLogic() {
             Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
 
             for (auto& event : randoRegion.events) {
-                if (!RANDO_EVENTS[event.first] && event.second()) {
+                if (!appliedEvents.contains(&event) && event.second()) {
                     RANDO_EVENTS[event.first]++;
+                    appliedEvents.insert(&event);
                     changed = true;
                 }
             }
@@ -358,8 +373,7 @@ void CheckTrackerDrawNonLogicalList() {
                 continue;
             }
 
-            if (CVAR_SHOW_CURRENT_SCENE && Play_GetOriginalSceneId(Rando::StaticData::Checks[checkId].sceneId) !=
-                                               Play_GetOriginalSceneId(gPlayState->sceneId)) {
+            if (CVAR_SHOW_CURRENT_SCENE && sceneId != GetScrollTargetScene(gPlayState->sceneId)) {
                 continue;
             }
 
@@ -384,7 +398,7 @@ void CheckTrackerDrawNonLogicalList() {
             sScrollToTargetEntrance = -1;
         }
         ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0));
-        std::string headerText = Ship_GetSceneName(sceneId);
+        std::string headerText = GetCheckTrackerSceneName(sceneId);
         headerText += " (" + std::to_string(obtainedCheckSum) + "/" + std::to_string(unfilteredChecks.size()) + ")";
 
         ImGui::PushStyleColor(ImGuiCol_Text, obtainedCheckSum == unfilteredChecks.size()
@@ -528,7 +542,7 @@ void CheckTrackerWindow::Draw() {
         if (!sCheckTrackerFilter.IsActive()) {
             if (UIWidgets::Button(ICON_FA_ARROWS_V, UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline))) {
                 if (gPlayState) {
-                    sScrollToTargetScene = Play_GetOriginalSceneId(gPlayState->sceneId);
+                    sScrollToTargetScene = GetScrollTargetScene(gPlayState->sceneId);
                     sScrollToTargetEntrance = gSaveContext.save.entrance;
                 }
             }
@@ -537,7 +551,7 @@ void CheckTrackerWindow::Draw() {
             if (UIWidgets::Button(ICON_FA_TIMES, UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Inline))) {
                 sCheckTrackerFilter.Clear();
                 if (gPlayState) {
-                    sScrollToTargetScene = Play_GetOriginalSceneId(gPlayState->sceneId);
+                    sScrollToTargetScene = GetScrollTargetScene(gPlayState->sceneId);
                     sScrollToTargetEntrance = gSaveContext.save.entrance;
                 }
             }
@@ -567,9 +581,11 @@ void CheckTrackerWindow::Draw() {
                 ImGui::PushStyleColor(ImGuiCol_Button, buttonCol);
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-                TexturePtr textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                    randoCheckType == RCTYPE_UNKNOWN ? (const char*)gShootingGalleryOctorokCrossTex
-                                                     : checkTypeIconList[randoCheckType]);
+                TexturePtr textureId =
+                    std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                        ->GetTextureByName(randoCheckType == RCTYPE_UNKNOWN
+                                               ? (const char*)gShootingGalleryOctorokCrossTex
+                                               : checkTypeIconList[randoCheckType]);
                 if (randoCheckType == RCTYPE_OWL) {
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4.0f);
                 } else if (randoCheckType == RCTYPE_SONG) {
@@ -639,7 +655,8 @@ void SettingsWindow::DrawElement() {
                                     .LabelPosition(UIWidgets::LabelPosition::Far));
         if (CVAR_OUT_OF_LOGIC_MODE == 1) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - 155.0f);
-            UIWidgets::CVarColorPicker("##OutOfLogicColor", CVAR_NAME_OUT_OF_LOGIC_COLOR, { 255, 255, 255, 100 }, true);
+            UIWidgets::CVarColorPicker("##OutOfLogicColor", CVAR_NAME_OUT_OF_LOGIC_COLOR ".Value",
+                                       { 255, 255, 255, 100 }, true);
         }
         UIWidgets::CVarCombobox("Collected Checks", CVAR_NAME_COLLECTED_MODE, &sCheckModes,
                                 UIWidgets::ComboboxOptions()
@@ -648,7 +665,8 @@ void SettingsWindow::DrawElement() {
                                     .LabelPosition(UIWidgets::LabelPosition::Far));
         if (CVAR_COLLECTED_MODE == 1) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - 155.0f);
-            UIWidgets::CVarColorPicker("##CollectedColor", CVAR_NAME_COLLECTED_COLOR, { 100, 255, 100, 255 }, true);
+            UIWidgets::CVarColorPicker("##CollectedColor", CVAR_NAME_COLLECTED_COLOR ".Value", { 100, 255, 100, 255 },
+                                       true);
         }
         UIWidgets::CVarCombobox("Skipped Checks", CVAR_NAME_SKIPPED_MODE, &sCheckModes,
                                 UIWidgets::ComboboxOptions()
@@ -657,7 +675,8 @@ void SettingsWindow::DrawElement() {
                                     .LabelPosition(UIWidgets::LabelPosition::Far));
         if (CVAR_SKIPPED_MODE == 1) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - 155.0f);
-            UIWidgets::CVarColorPicker("##SkippedColor", CVAR_NAME_SKIPPED_COLOR, { 255, 100, 255, 255 }, true);
+            UIWidgets::CVarColorPicker("##SkippedColor", CVAR_NAME_SKIPPED_COLOR ".Value", { 255, 100, 255, 255 },
+                                       true);
         }
         UIWidgets::CVarCheckbox("Only Show Current Scene", CVAR_NAME_SHOW_CURRENT_SCENE);
         UIWidgets::CVarCheckbox("Auto Scroll To Current Scene", CVAR_NAME_SCROLL_TO_SCENE,
@@ -716,7 +735,7 @@ void Init() {
     }
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId, s8 spawnNum) {
         if (CVAR_SCROLL_TO_SCENE) {
-            sScrollToTargetScene = Play_GetOriginalSceneId(sceneId);
+            sScrollToTargetScene = GetScrollTargetScene(sceneId);
             sScrollToTargetEntrance = gSaveContext.save.entrance;
         }
     });

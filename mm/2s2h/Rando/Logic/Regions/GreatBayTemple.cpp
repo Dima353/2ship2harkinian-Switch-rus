@@ -117,7 +117,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_GREAT_BAY_TEMPLE_BABA_CHEST_ROOM,                   true),
-            CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,  CAN_BE_ZORA && CAN_USE_MAGIC_ARROW(ICE)), // TODO : Decide if this should be considered a trick
+            //CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,  CAN_BE_ZORA && CAN_USE_MAGIC_ARROW(ICE)), // Implement as trick later.
             CONNECTION(RR_GREAT_BAY_TEMPLE_GEKKO,                             CAN_USE_MAGIC_ARROW(ICE) && CAN_USE_MAGIC_ARROW(FIRE)),
             CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_TUNNEL, CAN_USE_ABILITY(SWIM))
         },
@@ -286,7 +286,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_TEMPLE_RED_PIPE_BEFORE_WART_POT_03, CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             CHECK(RC_GREAT_BAY_TEMPLE_RED_PIPE_BEFORE_WART_POT_04, CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             CHECK(RC_ENEMY_DROP_SHELLBLADE, CanKillEnemy(ACTOR_EN_SB)),
-            CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA)),
+            CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA) && CAN_USE_ABILITY(SWIM) && CAN_BE_ZORA),
             CHECK(RC_ENEMY_DROP_SKULLFISH, CanKillEnemy(ACTOR_EN_PR2)),
         },
         .connections = {

@@ -137,8 +137,13 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_WALLET_GIANT:
             Inventory_ChangeUpgrade(UPG_WALLET, 1);
             break;
+        case RI_WALLET_TYCOON:
+            Inventory_ChangeUpgrade(UPG_WALLET, 2);
+            break;
         case RI_PROGRESSIVE_WALLET:
-            if (CUR_UPG_VALUE(UPG_WALLET) >= 2) {
+            if (CUR_UPG_VALUE(UPG_WALLET) >= 3) {
+                RemoveItem(RI_WALLET_TYCOON);
+            } else if (CUR_UPG_VALUE(UPG_WALLET) >= 2) {
                 RemoveItem(RI_WALLET_GIANT);
             } else if (CUR_UPG_VALUE(UPG_WALLET) >= 1) {
                 RemoveItem(RI_WALLET_ADULT);
@@ -299,9 +304,9 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_TIME_PROGRESSIVE: {
             // Remove most recently earned half-day per current mode
             const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_DESCENDING);
-            // For ascending mode, remove the latest (search from end)
-            // For descending mode, remove the earliest (search from front)
-            int toRemove = Rando::ClockItems::FindEarliestOwnedHalfDay(!descending);
+            // For ascending mode, remove the latest (fromEnd=true)
+            // For descending mode, remove the earliest (fromEnd=false)
+            int toRemove = Rando::ClockItems::FindOwnedHalfDay(!descending);
             if (toRemove >= 0) {
                 Flags_ClearRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + toRemove));
             }
@@ -355,7 +360,11 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
             REMOVE_QUEST_ITEM(QUEST_SONG_OATH);
             break;
         case RI_SONG_SARIA:
-            REMOVE_QUEST_ITEM(QUEST_SONG_SARIA);
+            gSaveContext.save.shipSaveInfo.rando.sariaHintsAvailable =
+                MAX(gSaveContext.save.shipSaveInfo.rando.sariaHintsAvailable - 1, 0);
+            if (gSaveContext.save.shipSaveInfo.rando.sariaHintsAvailable == 0) {
+                REMOVE_QUEST_ITEM(QUEST_SONG_SARIA);
+            }
             break;
         case RI_SONG_SOARING:
             REMOVE_QUEST_ITEM(QUEST_SONG_SOARING);

@@ -3,6 +3,7 @@
 *.o2r
 .DS_Store
 .vscode
+.idea
 *.swp
 logs
 *.nix
@@ -14,6 +15,7 @@ imgui.ini
 saves/*
 randomizer/*
 .idea/*
+mods/*
 2S2HTimeSplitData.json
 
 mm/libultraship/extern/Debug/ImGui.lib
@@ -72,3 +74,4 @@ _packages/
 /clang-format.exe
 
 build/
+.cache

@@ -70,10 +70,14 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_10, true),
             CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_11, true),
             CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_12, true),
+            CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_BUTTERFLY_01, HAS_ITEM(ITEM_DEKU_STICK)),
+            CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_BUTTERFLY_02, HAS_ITEM(ITEM_DEKU_STICK)),
+            CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_BUTTERFLY_03, HAS_ITEM(ITEM_DEKU_STICK)),
+            CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_BUTTERFLY_04, HAS_ITEM(ITEM_DEKU_STICK)),
             // TODO: Bean salesman check
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(DEKU_PALACE, 9),                  ENTRANCE(GROTTOS, 12), true), // TODO: Grotto mapping
+            EXIT(ENTRANCE(DEKU_PALACE, 9),                  ENTRANCE(GROTTOS, 12), true),
         },
     };
     Regions[RR_DEKU_PALACE_INSIDE_LOWER] = RandoRegion{ .name = "Inside, Lower", .sceneId = SCENE_22DEKUCITY,
@@ -106,24 +110,53 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(DEKU_KINGS_CHAMBER, 0),           ENTRANCE(DEKU_PALACE, 2), true),
-            EXIT(ENTRANCE(GROTTOS, 12),                     ENTRANCE(DEKU_PALACE, 9), true), // TODO: Grotto mapping
+            EXIT(ENTRANCE(GROTTOS, 12),                     ENTRANCE(DEKU_PALACE, 9), true),
         },
         .connections = {
             CONNECTION(RR_DEKU_PALACE_OUTSIDE, true),
         },
     };
-    Regions[RR_DEKU_PALACE_INSIDE_UPPER] = RandoRegion{ .name = "Inside, Upper", .sceneId = SCENE_22DEKUCITY,
-        .checks = {
-            CHECK(RC_DEKU_PALACE_POT_01, CAN_BE_DEKU),
-            CHECK(RC_DEKU_PALACE_POT_02, CAN_BE_DEKU),
-            CHECK(RC_ENEMY_DROP_MAD_SCRUB, CanKillEnemy(ACTOR_EN_DEKUNUTS)),
-        },
+    Regions[RR_DEKU_PALACE_INSIDE_UPPER_CELL_SIDE_LEDGE] = RandoRegion{ .name = "Inside, Upper", .sceneId = SCENE_22DEKUCITY,
+        // TODO: Region exists for entrance rando
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(DEKU_KINGS_CHAMBER, 1),           ENTRANCE(DEKU_PALACE, 3), CAN_BE_DEKU), // Cell
+            EXIT(ENTRANCE(DEKU_KINGS_CHAMBER, 1),           ENTRANCE(DEKU_PALACE, 3), true), // Cell
         },
         .connections = {
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_CELL_SIDE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
             CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, true),
         },
+    };
+    // TODO: There is a trick you can do to get up to the dekunut with a backflip onto the doorway and then an angled roll jump to grab the upper ledge
+    Regions[RR_DEKU_PALACE_INSIDE_UPPER_CELL_SIDE] = RandoRegion{ .name = "Inside, Upper", .sceneId = SCENE_22DEKUCITY,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_MAD_SCRUB, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+        },
+        .connections = {
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_CELL_SIDE_LEDGE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_MIDDLE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, true),
+        },
+    };
+    Regions[RR_DEKU_PALACE_INSIDE_UPPER_MIDDLE] = RandoRegion { .name = "Inside, Upper", .sceneId = SCENE_22DEKUCITY,
+        .checks = {
+            CHECK(RC_DEKU_PALACE_POT_01, true),
+            CHECK(RC_DEKU_PALACE_POT_02, true),
+        },
+        .connections = {
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_CELL_SIDE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_BEAN_SIDE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, true),
+        }
+    };
+    Regions[RR_DEKU_PALACE_INSIDE_UPPER_BEAN_SIDE] = RandoRegion { .name = "Inside, Upper", .sceneId = SCENE_22DEKUCITY,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_MAD_SCRUB, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+        },
+        .connections = {
+            CONNECTION(RR_DEKU_PALACE_OUTSIDE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_MIDDLE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, true),
+        }
     };
     Regions[RR_DEKU_PALACE_OUTSIDE] = RandoRegion{ .name = "Outside", .sceneId = SCENE_22DEKUCITY,
         .checks = {
@@ -136,7 +169,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, CAN_BE_DEKU),
-            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && CAN_USE_DAY2_RAIN_BEAN),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_BEAN_SIDE, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && CAN_USE_DAY2_RAIN_BEAN),
         },
     };
     Regions[RR_DEKU_SHRINE_ENTRANCE] = RandoRegion{ .name = "Entrance", .sceneId = SCENE_DANPEI,
@@ -222,13 +255,13 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_GRASS_14, true),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
-        .connections = {
-            CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP, true), // TODO: Grotto mapping
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0),       ENTRANCE(GROTTOS, 20), true),
         },
     };
     Regions[RR_ROAD_TO_SOUTHERN_SWAMP] = RandoRegion{ .sceneId = SCENE_24KEMONOMITI,
         .checks = {
-            CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_PIECE_OF_HEART, CanKillEnemy(ACTOR_EN_BAT)),
+            CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_PIECE_OF_HEART, CanKillEnemy(ACTOR_EN_BAT) && (CAN_USE_PROJECTILE || HAS_ITEM(ITEM_BOMBCHU))),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_01, CAN_USE_PROJECTILE && CAN_AFFORD(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_01)),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_02, CAN_USE_PROJECTILE && CAN_AFFORD(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_02)),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_01, true),
@@ -264,11 +297,9 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 1),                ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0), true),
+            EXIT(ENTRANCE(GROTTOS, 20),                     ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 0),      ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 1), true),
             EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2), BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00)),
-        },
-        .connections = {
-            CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO, true), // TODO: Grotto mapping
         },
         .events = {
             EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
@@ -294,12 +325,16 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_GRASS_14, true),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
-        .connections = {
-            CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, true), // TODO: Grotto mapping
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 3),      ENTRANCE(GROTTOS, 21), true),
         },
     };
     Regions[RR_SOUTHERN_SWAMP_NORTH] = RandoRegion{ .name = "North Tourist Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
+            CHECK(RC_SOUTHERN_SWAMP_POISON_TOURIST_GRASS_01, true),
+            CHECK(RC_SOUTHERN_SWAMP_POISON_TOURIST_GRASS_02, true),
+            CHECK(RC_SOUTHERN_SWAMP_CLEARED_TOURIST_GRASS_01, RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+            CHECK(RC_SOUTHERN_SWAMP_CLEARED_TOURIST_GRASS_02, RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
             CHECK(RC_SOUTHERN_SWAMP_PIECE_OF_HEART, CAN_BE_DEKU && Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
             CHECK(RC_SOUTHERN_SWAMP_SCRUB_DEED, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
             CHECK(RC_SOUTHERN_SWAMP_SCRUB_BEANS, CAN_BE_DEKU),
@@ -328,6 +363,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_10, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_11, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_12, true),
+            CHECK(RC_SOUTHERN_SWAMP_POISON_BEEHIVE, CAN_USE_PROJECTILE && CAN_TRAVERSE_WAIST_DEEP_WATER),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .exits = { //     TO                                         FROM
@@ -354,7 +390,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_FROG, HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_SOUTHERN_SWAMP_FREESTANDING_RUPEE_01, CAN_BE_DEKU || CAN_BE_ZORA),
             CHECK(RC_SOUTHERN_SWAMP_FREESTANDING_RUPEE_02, CAN_BE_DEKU || CAN_BE_ZORA),
-            CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA) && CAN_TRAVERSE_WAIST_DEEP_WATER),
+            CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA) && (CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA || CAN_BE_GORON)),
         },
         .connections = {
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, CanGetPastBigOctoWithoutBoat()),
@@ -371,6 +407,10 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_SOUTHERN_SWAMP_NEAR_WOODS] = RandoRegion{ .name = "North Woods Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
+            CHECK(RC_SOUTHERN_SWAMP_CLEARED_WOODS_GRASS_01, RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+            CHECK(RC_SOUTHERN_SWAMP_CLEARED_WOODS_GRASS_02, RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+            CHECK(RC_SOUTHERN_SWAMP_POISON_WOODS_GRASS_01, true),
+            CHECK(RC_SOUTHERN_SWAMP_POISON_WOODS_GRASS_02, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_POT_01, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_POT_02, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_POT_03, true),
@@ -434,13 +474,13 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_SOUTHERN_SWAMP_SOUTH] = RandoRegion{ .name = "South Section", .sceneId = SCENE_20SICHITAI,
         .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GROTTOS, 21),                     ENTRANCE(SOUTHERN_SWAMP_POISONED, 3), CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)),
             EXIT(ENTRANCE(DEKU_PALACE, 0),                  ENTRANCE(SOUTHERN_SWAMP_POISONED, 3), true),
             EXIT(ENTRANCE(SWAMP_SPIDER_HOUSE, 0),           ENTRANCE(SOUTHERN_SWAMP_POISONED, 8), CAN_LIGHT_TORCH_NEAR_ANOTHER && (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && (CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA)))),
         },
         .connections = {
             CONNECTION(RR_SOUTHERN_SWAMP_NORTH, CanGetPastBigOcto()),
             CONNECTION(RR_SOUTHERN_SWAMP_NEAR_FLOWERS, CanGetPastBigOctoWithoutBoat()),
-            CONNECTION(RR_SOUTHERN_SWAMP_GROTTO, CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)), // TODO: Grotto mapping
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH_UPPER, RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER), // Climbable vines, only in cleared swamp
         },
         .events = {
@@ -502,8 +542,8 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_WOODFALL] = RandoRegion{ .sceneId = SCENE_21MITURINMAE,
         .checks = {
             CHECK(RC_WOODFALL_ENTRANCE_CHEST, CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && (CAN_BE_ZORA || CAN_BE_GORON || CAN_USE_ABILITY(SWIM)))),
-            CHECK(RC_WOODFALL_PIECE_OF_HEART_CHEST, CAN_BE_DEKU),
-            CHECK(RC_WOODFALL_FREESTANDING_RUPEE, CAN_BE_DEKU),
+            CHECK(RC_WOODFALL_PIECE_OF_HEART_CHEST, CAN_BE_DEKU && (CanKillEnemy(ACTOR_EN_DEKUNUTS) || HAS_ITEM(ITEM_HOOKSHOT))),
+            CHECK(RC_WOODFALL_FREESTANDING_RUPEE, CAN_BE_DEKU && CanKillEnemy(ACTOR_EN_DEKUNUTS)),
             CHECK(RC_WOODFALL_GRASS_01, true),
             CHECK(RC_WOODFALL_GRASS_02, true),
             CHECK(RC_WOODFALL_GRASS_03, true),
@@ -516,11 +556,11 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 2),      ENTRANCE(WOODFALL, 0), true),
-            EXIT(ENTRANCE(FAIRY_FOUNTAIN, 1),               ENTRANCE(WOODFALL, 2), CAN_BE_DEKU),
+            EXIT(ENTRANCE(FAIRY_FOUNTAIN, 1),               ENTRANCE(WOODFALL, 2), CAN_BE_DEKU && CanKillEnemy(ACTOR_EN_DEKUNUTS)),
             EXIT(ENTRANCE(WOODFALL_TEMPLE, 2),              ENTRANCE(WOODFALL, 3), RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
         },
         .connections = {
-            CONNECTION(RR_WOODFALL_OWL_STATUE_PLATFORM, CAN_BE_DEKU),
+            CONNECTION(RR_WOODFALL_OWL_STATUE_PLATFORM, CAN_BE_DEKU && CanKillEnemy(ACTOR_EN_DEKUNUTS)),
         },
     };
     Regions[RR_WOODFALL_OWL_STATUE_PLATFORM] = RandoRegion{ .name = "Owl Statue Platform", .sceneId = SCENE_21MITURINMAE,
@@ -557,8 +597,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_14, true),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
-        .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY, SECOND_DAY()), // TODO: Grotto mapping
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(WOODS_OF_MYSTERY, 0),             ENTRANCE(GROTTOS, 22), true),
         },
     };
     Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
@@ -586,13 +626,11 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_21, SECOND_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_22, FINAL_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_23, FINAL_DAY()),
-            CHECK(RC_ENEMY_DROP_SNAPPER, CAN_BE_DEKU || CanKillEnemy(ACTOR_EN_KAME)),
+            CHECK(RC_ENEMY_DROP_SNAPPER, CAN_BE_DEKU && CanKillEnemy(ACTOR_EN_KAME)),
         },
         .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GROTTOS, 22),                     ENTRANCE(WOODS_OF_MYSTERY, 0), SECOND_DAY()),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 7),      ENTRANCE(WOODS_OF_MYSTERY, 0), true),
-        },
-        .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY_GROTTO, SECOND_DAY()), // TODO: Grotto mapping
         },
         .events = {
             EVENT(RE_SAVED_KOUME, HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),

@@ -2,6 +2,7 @@
 #include <variant>
 #include <spdlog/spdlog.h>
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/BenPort.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -183,6 +184,11 @@ void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
 }
 
+void GameInteractor_ExecuteOnPlayerReleaseHeldActor(PlayState* play, Player* player, Actor* heldActor) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
+}
+
 void GameInteractor_ExecuteOnBossDefeated(s16 actorId) {
     SPDLOG_DEBUG("GameInteractor_ExecuteOnBossDefeated: actorId: {}", actorId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBossDefeated>(actorId);
@@ -352,6 +358,11 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_ZORA_SWIM_Y:
+            if (CVarGetInteger("gEnhancements.Player.InvertZoraSwimY", 1)) {
+                result *= -1;
+            }
+            break;
     }
 
     // Invert all X axis inputs if the Mirrored World mode is enabled
@@ -425,6 +436,43 @@ uint32_t GameInteractor_RightStickOcarina(Input* input) {
         result |= BTN_CUP;
     } else if (rstick_y < -sensitivity) {
         result |= BTN_CDOWN;
+    }
+
+    return result;
+}
+
+uint32_t GameInteractor_CustomOcarinaControls(Input* input) {
+    uint32_t result = 0;
+
+    if (!CVarGetInteger("gEnhancements.Playback.CustomizeOcarinaControls", 0)) {
+        return result;
+    }
+
+    if (input->cur.button & BTN_CUSTOM_OCARINA_NOTE_D4) {
+        result |= BTN_A;
+    }
+    if (input->cur.button & BTN_CUSTOM_OCARINA_NOTE_F4) {
+        result |= BTN_CDOWN;
+    }
+    if (input->cur.button & BTN_CUSTOM_OCARINA_NOTE_A4) {
+        result |= BTN_CRIGHT;
+    }
+    if (input->cur.button & BTN_CUSTOM_OCARINA_NOTE_B4) {
+        result |= BTN_CLEFT;
+    }
+    if (input->cur.button & BTN_CUSTOM_OCARINA_NOTE_D5) {
+        result |= BTN_CUP;
+    }
+
+    if (input->cur.button & BTN_CUSTOM_OCARINA_DISABLE_SONGS) {
+        result |= BTN_L;
+    }
+
+    if (input->cur.button & BTN_CUSTOM_OCARINA_PITCH_UP) {
+        result |= BTN_R;
+    }
+    if (input->cur.button & BTN_CUSTOM_OCARINA_PITCH_DOWN) {
+        result |= BTN_Z;
     }
 
     return result;
@@ -543,6 +591,13 @@ void ProcessEvents(Actor* actor) {
 
     GameInteractor::Instance->events.erase(GameInteractor::Instance->events.begin());
 }
+
+// On MSVC this is defined inline in the header instead; see the declaration for why.
+#ifndef _MSC_VER
+void GameInteractor::RemoveAllQueuedHooks() {
+#include "GameInteractor_RemoveAllQueuedHooks.inc"
+}
+#endif
 
 void GameInteractor::RegisterOwnHooks() {
     // Cleanup all hooks at the start of each frame

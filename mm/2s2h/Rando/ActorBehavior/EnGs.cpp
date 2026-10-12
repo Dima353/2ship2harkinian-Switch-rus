@@ -14,6 +14,7 @@ extern "C" {
 
 #define FIRST_GS_MESSAGE 0x20D1
 #define SECOND_GS_MESSAGE 0x20C0
+#define MOON_GS_MASK_MESSAGE 0x20D4
 
 std::vector<std::string> flavorText = {
     "Good luck on your journey ...",
@@ -22,6 +23,53 @@ std::vector<std::string> flavorText = {
     "Beware the moon's gaze",
     " .. It's dangerous to go alone",
 };
+
+// clang-format off
+std::unordered_map<RandoItemId, u32> riToWeight = {
+    { RI_SOUL_BOSS_MAJORA, 13 },
+    { RI_MASK_DEKU, 12 },
+    { RI_MASK_GORON, 12 },
+    { RI_MASK_ZORA, 12 },
+    { RI_MASK_BLAST, 11 },
+    { RI_MASK_FIERCE_DEITY, 11 },
+    { RI_SOUL_BOSS_GOHT, 10 },
+    { RI_SOUL_BOSS_GYORG, 10 },
+    { RI_SOUL_BOSS_ODOLWA, 10 },
+    { RI_SOUL_BOSS_TWINMOLD, 10 },
+    { RI_REMAINS_GOHT, 10 },
+    { RI_REMAINS_GYORG, 10 },
+    { RI_REMAINS_ODOLWA, 10 },
+    { RI_REMAINS_TWINMOLD, 10 },
+};
+
+std::unordered_map<RandoCheckId, u32> rcToWeight = {
+    { RC_PINNACLE_ROCK_REUNITE_SEAHORSE, 10 },
+    { RC_GREAT_BAY_COAST_NEW_WAVE_BOSSA_NOVA, 10 },
+    { RC_MOUNTAIN_VILLAGE_FROG_CHOIR, 10 },
+    { RC_STOCK_POT_INN_COUPLES_MASK, 10 },
+    { RC_ROMANI_RANCH_ALIENS, 10 },
+    { RC_WATERFALL_RAPIDS_BEAVER_RACE_01, 8 },
+    { RC_WATERFALL_RAPIDS_BEAVER_RACE_02, 8 },
+    { RC_KEATON_QUIZ, 8 },
+    { RC_CURIOSITY_SHOP_SPECIAL_ITEM, 8 },
+    { RC_DEKU_PLAYGROUND_ALL_DAYS, 8 },
+    { RC_MOON_TRIAL_ZORA_PIECE_OF_HEART, 6 },
+    { RC_MOON_TRIAL_DEKU_PIECE_OF_HEART, 6 },
+    { RC_MOON_TRIAL_GORON_PIECE_OF_HEART, 6 },
+};
+
+std::unordered_map<RandoItemType, u32> itemTypeToWeight = {
+    { RITYPE_MAJOR, 9 },
+    { RITYPE_MASK, 9 },
+    { RITYPE_BOSS_KEY, 8 },
+    { RITYPE_LESSER, 6 },
+    { RITYPE_SMALL_KEY, 5 },
+    { RITYPE_SKULLTULA_TOKEN, 3 },
+    { RITYPE_STRAY_FAIRY, 3 },
+    { RITYPE_HEALTH, 2 },
+    { RITYPE_JUNK, 2 },
+};
+// clang-format on
 
 s32 GetNormalizedCost() {
     s32 obtainedChecks = 0;
@@ -39,23 +87,53 @@ s32 GetNormalizedCost() {
     return MAX(10, MIN(250, 10 + (obtainedChecks * (250 - 10)) / (maxChecks)));
 }
 
-RandoCheckId GetRandomCheck(bool repeatableOnlyObtained = false) {
+EnGs* GetGossipStone() {
     Player* player = GET_PLAYER(gPlayState);
     if (player->talkActor == nullptr || player->talkActor->id != ACTOR_EN_GS) {
+        return nullptr;
+    }
+    return (EnGs*)player->talkActor;
+}
+
+bool ShouldHintMoonMask(EnGs* enGs) {
+    return RANDO_SAVE_OPTIONS[RO_HINTS_MOON_GOSSIP_STONES] && enGs != nullptr && enGs->actor.params == ENGS_0 &&
+           enGs->unk_195 >= 1 && enGs->unk_195 <= 20; // 20 moon gossip stones
+}
+
+RandoCheckId GetRandomCheck(bool repeatableOnlyObtained = false) {
+    EnGs* enGs = GetGossipStone();
+    if (enGs == nullptr) {
         return RC_UNKNOWN;
     }
-    EnGs* enGs = (EnGs*)player->talkActor;
 
-    std::vector<RandoCheckId> availableChecks;
+    u32 strength = RANDO_SAVE_OPTIONS[RO_HINTS_GOSSIP_STONE_STRENGTH];
+
+    std::vector<std::pair<RandoCheckId, u32>> weightedChecks;
+    u32 totalWeight = 0;
+
     for (auto& [randoCheckId, _] : Rando::StaticData::Checks) {
         RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        if (saveCheck.shuffled && Rando::StaticData::Items[saveCheck.randoItemId].randoItemType != RITYPE_JUNK &&
-            (!repeatableOnlyObtained || !saveCheck.obtained)) {
-            availableChecks.push_back(randoCheckId);
+        auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
+        if (!saveCheck.shuffled || item.randoItemType == RITYPE_JUNK ||
+            (repeatableOnlyObtained && saveCheck.obtained)) {
+            continue;
         }
+
+        u32 baseWeight = 1;
+        if (rcToWeight.contains(randoCheckId)) {
+            baseWeight = rcToWeight[randoCheckId];
+        } else if (riToWeight.contains(saveCheck.randoItemId)) {
+            baseWeight = riToWeight[saveCheck.randoItemId];
+        } else if (itemTypeToWeight.contains(item.randoItemType)) {
+            baseWeight = itemTypeToWeight[item.randoItemType];
+        }
+
+        u32 effectiveWeight = 100 + (baseWeight - 1) * strength;
+        totalWeight += effectiveWeight;
+        weightedChecks.push_back({ randoCheckId, totalWeight });
     }
 
-    if (availableChecks.empty()) {
+    if (weightedChecks.empty()) {
         return RC_UNKNOWN;
     }
 
@@ -65,22 +143,55 @@ RandoCheckId GetRandomCheck(bool repeatableOnlyObtained = false) {
         uint32_t seed = gPlayState->sceneId + enGs->actor.home.pos.x + enGs->actor.home.pos.z;
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + seed);
     }
-    return availableChecks[Ship_Random(0, availableChecks.size() - 1)];
+
+    u32 roll = Ship_Random(0, totalWeight);
+    for (auto& [checkId, cumWeight] : weightedChecks) {
+        if (roll < cumWeight) {
+            return checkId;
+        }
+    }
+    return weightedChecks.back().first;
 }
 
 void Rando::ActorBehavior::InitEnGsBehavior() {
-    bool shouldRegister =
+    bool randomHints =
         IS_RANDO && (RANDO_SAVE_OPTIONS[RO_HINTS_GOSSIP_STONES] || RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]);
+    bool moonMaskHints = IS_RANDO && RANDO_SAVE_OPTIONS[RO_HINTS_MOON_GOSSIP_STONES];
 
-    COND_VB_SHOULD(VB_GS_CONSIDER_MASK_OF_TRUTH_EQUIPPED, shouldRegister, { *should = true; });
+    COND_VB_SHOULD(VB_GS_CONSIDER_MASK_OF_TRUTH_EQUIPPED, randomHints, { *should = true; });
+
+    COND_VB_SHOULD(VB_GS_CONSIDER_MASK_OF_TRUTH_EQUIPPED, moonMaskHints, {
+        if (ShouldHintMoonMask(va_arg(args, EnGs*))) {
+            *should = true;
+        }
+    });
 
     // Override the message ID so that we can control the text
-    COND_VB_SHOULD(VB_GS_CONTINUE_TEXTBOX, shouldRegister, {
+    COND_VB_SHOULD(VB_GS_CONTINUE_TEXTBOX, randomHints, {
+        // Moon stones have a mask hint of their own, which takes priority
+        if (ShouldHintMoonMask(va_arg(args, EnGs*))) {
+            return;
+        }
+
         *should = false;
         Message_ContinueTextbox(gPlayState, SECOND_GS_MESSAGE);
     });
 
-    COND_ID_HOOK(OnOpenText, FIRST_GS_MESSAGE, shouldRegister, [](u16* textId, bool* loadFromMessageTable) {
+    COND_VB_SHOULD(VB_GS_CONTINUE_TEXTBOX, moonMaskHints, {
+        if (!ShouldHintMoonMask(va_arg(args, EnGs*))) {
+            return;
+        }
+
+        *should = false;
+        Message_ContinueTextbox(gPlayState, MOON_GS_MASK_MESSAGE);
+    });
+
+    COND_ID_HOOK(OnOpenText, FIRST_GS_MESSAGE, randomHints, [](u16* textId, bool* loadFromMessageTable) {
+        // Moon stones keep their vanilla opening line and answer with a mask hint instead
+        if (ShouldHintMoonMask(GetGossipStone())) {
+            return;
+        }
+
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
 
         if (RANDO_SAVE_OPTIONS[RO_HINTS_GOSSIP_STONES]) {
@@ -92,12 +203,17 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             entry.autoFormat = false;
             auto& saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
 
-            entry.msg = "They say %g{{item}}%w is hidden at %y{{location}}%w.";
+            bool showExact = false;
+            if (rcToWeight.contains(randoCheckId)) {
+                showExact = true;
+            }
+
+            entry.msg = "They say %g{{item}}%w is hidden %y{{location}}%w.";
 
             CustomMessage::Replace(&entry.msg, "{{item}}",
                                    Rando::StaticData::GetItemName(saveCheck.randoItemId, true, randoCheckId));
             CustomMessage::Replace(&entry.msg, "{{location}}",
-                                   Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
+                                   Rando::StaticData::GetLocationNameForHint(randoCheckId, showExact));
 
             // Replace colors before line break calculation
             CustomMessage::ReplaceColorChars(&entry.msg);
@@ -125,7 +241,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
         *loadFromMessageTable = false;
     });
 
-    COND_ID_HOOK(OnOpenText, SECOND_GS_MESSAGE, shouldRegister, [](u16* textId, bool* loadFromMessageTable) {
+    COND_ID_HOOK(OnOpenText, SECOND_GS_MESSAGE, randomHints, [](u16* textId, bool* loadFromMessageTable) {
         MessageContext* msgCtx = &gPlayState->msgCtx;
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
 
@@ -141,12 +257,12 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                 } else {
                     RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
 
-                    entry.msg = "Wise choice... They say %g{{item}}%w is hidden at %y{{location}}%w.";
+                    entry.msg = "Wise choice... They say %g{{item}}%w is hidden %y{{location}}%w.";
 
                     CustomMessage::Replace(&entry.msg, "{{item}}",
                                            Rando::StaticData::GetItemName(saveCheck.randoItemId, true, randoCheckId));
                     CustomMessage::Replace(&entry.msg, "{{location}}",
-                                           Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
+                                           Rando::StaticData::GetLocationNameForHint(randoCheckId, true));
 
                     gSaveContext.rupeeAccumulator -= cost;
                     cost *= 2;
@@ -155,8 +271,28 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                 entry.msg = "Foolish... Come back later when you have more sense.";
             }
         } else {
-            entry.msg = flavorText[Ship_Random(0, flavorText.size() - 1)];
+            entry.msg = flavorText[Ship_Random(0, flavorText.size())];
         }
+
+        CustomMessage::LoadCustomMessageIntoFont(entry);
+        *loadFromMessageTable = false;
+    });
+
+    COND_ID_HOOK(OnOpenText, MOON_GS_MASK_MESSAGE, moonMaskHints, [](u16* textId, bool* loadFromMessageTable) {
+        EnGs* enGs = GetGossipStone();
+        if (!ShouldHintMoonMask(enGs)) {
+            return;
+        }
+
+        RandoItemId randoItemId = Rando::StaticData::GetItemIdFromVanillaItemId(ITEM_MASK_TRUTH + enGs->unk_195 - 1);
+        RandoCheckId randoCheckId = Rando::FindItemPlacement(randoItemId);
+
+        auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+        entry.msg = "They say %g{{item}}%w is hidden %y{{location}}%w...";
+
+        CustomMessage::Replace(&entry.msg, "{{item}}", Rando::StaticData::GetItemName(randoItemId));
+        CustomMessage::Replace(&entry.msg, "{{location}}",
+                               Rando::StaticData::GetLocationNameForHint(randoCheckId, false));
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
